@@ -17,12 +17,18 @@ void main()
 
 	pid_t pid;
 
+	int num = 20;	
+
 	pid = fork();
 
-	if (pid == 0)
+	if (pid == 0){
 		ChildProcess();
-	else
+		num = num + 5;
+	}
+	else{
 		ParentProcess();
+		printf(" The value of num is: %i\n", num);
+	}
 }
 
 void ChildProcess()
@@ -40,7 +46,6 @@ void ChildProcess()
 void ParentProcess()
 {	
 	int i;
-
 	pid_t pid;
 
 	pid = getpid();

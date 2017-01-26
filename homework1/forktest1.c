@@ -5,6 +5,10 @@
 
 #define MAX_COUNT 200
 
+/*
+* Dylan Brown
+*/
+
 int main()
 {
 	pid_t pid;
