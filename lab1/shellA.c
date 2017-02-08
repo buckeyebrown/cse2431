@@ -4,6 +4,14 @@ How to compile the code:
 	gcc -g shellA.c -o laboneshell
 How to run the compiled code:
 	./laboneshell
+Shell commands:
+	mv source_name dest_name
+		move file with the shell
+	cat file_name
+		prints file to the shell
+	laboneshell
+		opens up another shell
+	
 ***/
 
 #include <stdio.h>
@@ -98,16 +106,20 @@ int main(void)
 
 	pid_t pid;
 	pid = fork();
+	//Fork a child process using fork
 	if (pid == 0){
-		//Child Process
+		//Child Process, invoking execvp()
 		execvp(args[0], args);
 		exit(0);
 	}
 	else if (pid > 0){
+		//Parent Process
 		if (background==0){
+		//If background == 0, the parent will wait
 			wait();
 		}
 		else{
+			//Otherwise, go to setup
 			 setup(inputBuff, args, &background);
 		}
 	}
