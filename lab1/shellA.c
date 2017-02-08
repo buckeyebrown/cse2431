@@ -1,3 +1,11 @@
+/** Dylan Brown
+brown.4414@osu.edu
+How to compile the code:
+	gcc -g shellA.c -o laboneshell
+How to run the compiled code:
+	./laboneshell
+***/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -87,6 +95,25 @@ int main(void)
         fflush(0);
 
         setup(inputBuff, args, &background);       /* Get next command */
+
+	pid_t pid;
+	pid = fork();
+	if (pid == 0){
+		//Child Process
+		execvp(args[0], args);
+		exit(0);
+	}
+	else if (pid > 0){
+		if (background==0){
+			wait();
+		}
+		else{
+			 setup(inputBuff, args, &background);
+		}
+	}
+	else {
+		exit(-1);
+	}
 
 	/* Fill in the code for these steps:  
 	 (1) Fork a child process using fork(),
