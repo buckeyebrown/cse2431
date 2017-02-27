@@ -5,13 +5,19 @@
 #include <semaphore.h>
 #include "buffer.h"
 
+//global vars
 buffer_item buffer[BUFFER_SIZE];
 pthread_mutex_t mutex;
 sem_t full, empty;
+int counter, in, out;
 
+//function prototypes
 int insert_item(buffer_item item);
 int remove_item(buffer_item *item);
+void *producer(void *param);
+void *consumer(void *param);
 
+//main function
 int main(int argc, char* argv[]){
 	//get command line arguments argv[1], argv[2], argv[3]
 	//How long to sleep before terminating
@@ -23,18 +29,44 @@ int main(int argc, char* argv[]){
 
 	//initialize buffer, mutex, semaphores, and global variables
 	pthread_mutex_init(&mutex, NULL);
-	sem_init(&full, 0, BUFFER_SIZE);
-	sem_init(&empty, 1, BUFFER_SIZE);
+	//Set the full semaphore with a value of 0
+	sem_init(&full, 0, 0);
+	//Set the empty buffer with a value of BUFFER_SIZE
+	sem_init(&empty, 0, BUFFER_SIZE);
+	//Initialize counter, in, and out to 0
+	counter = 0;
+	in = 0;
+	out = 0;
+
 	//create producer threads
 	pthread_t producerThreads[numOfProducers];
+	pthread_attr_t attr;
+
+	//Get default attribute
+	pthread_attr_init(&attr);
+	int a = 0;
+	while (a < numOfProducers){
+		pthread_create(&producer[a], &attr, producer, NULL);
+		a++;
+	}
+
 	//create consumer threads
 	pthread_t consumerThreads[numOfConsumers];
+	a = o;
+	while (a < numOfConsumers){
+		pthread_create(&consumers[a], &attr, consumer, NULL);
+		a++;
+	}
+
 	//sleep
+	sleep(timeSleep);
+
 	//release resources, aka destroy mutex and semaphores
 
 	return 0;
 }
 
+//producer process
 int insert_item(buffer_item item){
 	int error_flag;
 	//wait empty
@@ -42,25 +74,57 @@ int insert_item(buffer_item item){
 	//wait mutex
 	pthread_mutex_lock(&mutex);
 
+	// insert item / Add next produced to buffer
+	if( counter != BUFFER_SIZE){
+		buffer[in] = item;
+		in = (in + 1) % BUFFER_SIZE;
+		counter ++;
+		error_flag = 0;
+	}
+	else{
+		error_flag = -1;
+	}
 
-
-	// insert item
-
-	prinf("Producer produced%d\n", item);
+	//signal mutex and full
+	pthread_mutex_unlock(&mutex);
+	sem_post(&full);
 
 	//ret 0 if successful
 	//ret -1 if not
+
+	return error_flag;
 }
 
+//consumer process
 int remove_item(buffer_item *item){
+	int error_flag;
 	// remove object from buffer and place it in item
+	//wait full
+	sem_wait(&full);
+	//wait mutex
+	pthread_mutex_lock(&mutex);
 
-	printf("Consumer consumed%d\n", rand);
+	// remove item / consume item from buffer
+	if (counter != 0){
+		*item = buffer[out];
+		out = (out + 1) % BUFFER_SIZE;
+		counter --;
+		error_flag = 0;
+		printf("Consumer consumed%d\n", item);
+	}
+	else{
+		error_flag = -1;
+	}
 
+	//signal mutex and empty
+	pthread_mutex_unlock(&mutex);
+	sem_post(&empty);
 	//ret 0 if successful
 	//ret -1 if not
+	return error_flag;
 }
 
+//Entry point of producer thread
 void *producer(void *param){
 	buffer_item rand;
 
@@ -69,26 +133,33 @@ void *producer(void *param){
 		sleep(rand() % 10 + 1);
 
 		//generate a random number
-		//rand = rand_r(..);
+		rand = rand_r(RAND_MAX);
 
 		if(insert_item(rand) < 0){
 			//report error with printf
 			printf("There was an error with the producer function");
 		}
+		else{
+			prinf("Producer produced%d\n", rand);
+		}
 	}
 }
 
+//Entry point of consumer thread
 void *consumer(void *param){
 	buffer_item rand;
 
 	while(1){
 		//sleep for a random period of time
-		// sleep(..)
+		// sleep for a random period of time between 1 and 10 seconds
+		sleep(rand() % 10 + 1);
 
 		if(remove_item(&rand) < 0){
 			//report error with printf
 			printf("There was an error with the consumer function");
 		}
-
+		else{
+			printf("Consumer consumed%d\n", rand);
+		}
 	}
 }
