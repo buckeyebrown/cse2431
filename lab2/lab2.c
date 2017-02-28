@@ -3,11 +3,14 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <time.h>
 #include "buffer.h"
 
 //global vars
 buffer_item buffer[BUFFER_SIZE];
+//mutex lock
 pthread_mutex_t mutex;
+//semaphores
 sem_t full, empty;
 int counter, in, out;
 
@@ -46,15 +49,15 @@ int main(int argc, char* argv[]){
 	pthread_attr_init(&attr);
 	int a = 0;
 	while (a < numOfProducers){
-		pthread_create(&producer[a], &attr, producer, NULL);
+		pthread_create(&producerThreads[a], &attr, producer, NULL);
 		a++;
 	}
 
 	//create consumer threads
 	pthread_t consumerThreads[numOfConsumers];
-	a = o;
+	a = 0;
 	while (a < numOfConsumers){
-		pthread_create(&consumers[a], &attr, consumer, NULL);
+		pthread_create(&consumerThreads[a], &attr, consumer, NULL);
 		a++;
 	}
 
@@ -75,16 +78,19 @@ int insert_item(buffer_item item){
 	pthread_mutex_lock(&mutex);
 
 	// insert item / Add next produced to buffer
-	if( counter != BUFFER_SIZE){
-		buffer[in] = item;
-		in = (in + 1) % BUFFER_SIZE;
-		counter ++;
-		error_flag = 0;
-	}
-	else{
-		error_flag = -1;
-	}
+		while(counter == BUFFER_SIZE){
 
+		}
+		if(counter != BUFFER_SIZE){
+			buffer[in] = item;
+			in = (in + 1) % BUFFER_SIZE;
+			counter++;
+			error_flag = 0;
+		}
+		else{
+			error_flag = -1;
+		}
+	
 	//signal mutex and full
 	pthread_mutex_unlock(&mutex);
 	sem_post(&full);
@@ -103,19 +109,18 @@ int remove_item(buffer_item *item){
 	sem_wait(&full);
 	//wait mutex
 	pthread_mutex_lock(&mutex);
-
-	// remove item / consume item from buffer
-	if (counter != 0){
-		*item = buffer[out];
-		out = (out + 1) % BUFFER_SIZE;
-		counter --;
-		error_flag = 0;
-		printf("Consumer consumed%d\n", item);
-	}
-	else{
-		error_flag = -1;
-	}
-
+		while(counter == 0){
+		}
+		// remove item / consume item from buffer
+		if (counter != 0){
+			*item = buffer[out];
+			out = (out + 1) % BUFFER_SIZE;
+			counter--;
+			error_flag = 0;
+		}
+		else{
+			error_flag = -1;
+		}
 	//signal mutex and empty
 	pthread_mutex_unlock(&mutex);
 	sem_post(&empty);
@@ -126,40 +131,40 @@ int remove_item(buffer_item *item){
 
 //Entry point of producer thread
 void *producer(void *param){
-	buffer_item rand;
-
+	buffer_item randVal;
+	unsigned int seed = (time(NULL) % 20) + 1;
+	
 	while(1){
-		// sleep for a random period of time between 1 and 10 seconds
-		sleep(rand() % 10 + 1);
+		// sleep for a random period of time between 1 and 3 seconds
+		sleep((rand() % 3) + 1);
 
-		//generate a random number
-		rand = rand_r(RAND_MAX);
-
-		if(insert_item(rand) < 0){
+		//generate a random number from 1 to 5000
+		randVal = rand_r(&seed) % 5000;
+		if(insert_item(randVal) < 0){
 			//report error with printf
 			printf("There was an error with the producer function");
 		}
 		else{
-			prinf("Producer produced%d\n", rand);
+			printf("Producer produced: %d\n", randVal);
 		}
 	}
 }
 
 //Entry point of consumer thread
 void *consumer(void *param){
-	buffer_item rand;
+	buffer_item randVal;
 
 	while(1){
 		//sleep for a random period of time
 		// sleep for a random period of time between 1 and 10 seconds
-		sleep(rand() % 10 + 1);
+		sleep((rand() % 3) + 1);
 
-		if(remove_item(&rand) < 0){
+		if(remove_item(&randVal) < 0){
 			//report error with printf
 			printf("There was an error with the consumer function");
 		}
 		else{
-			printf("Consumer consumed%d\n", rand);
+			printf("Consumer consumed: %d\n", randVal);
 		}
 	}
 }
