@@ -1,3 +1,9 @@
+/*
+* Dylan Brown
+* CSE 2431
+* Lab 2
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

@@ -1,0 +1,15 @@
+Dylan Brown
+CSE 2431
+Lab 2
+
+How to compile:
+
+type the command "make" to compile the program
+
+How to run:
+	Given: X = How long to sleep before terminating (integer)
+	Given: Y = The number of producer threads (integer)
+	Given: Z = The number of consumer threads (integer)
+	Run the command: "./lab2 X Y Z"
+
+
