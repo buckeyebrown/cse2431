@@ -65,7 +65,9 @@ int main(int argc, char* argv[]){
 	sleep(timeSleep);
 
 	//release resources, aka destroy mutex and semaphores
-
+	sem_destroy(&full);
+	sem_destroy(&empty);
+	pthread_mutex_destroy(&mutex);
 	return 0;
 }
 
