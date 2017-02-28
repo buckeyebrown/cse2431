@@ -68,6 +68,8 @@ int main(int argc, char* argv[]){
 	sem_destroy(&full);
 	sem_destroy(&empty);
 	pthread_mutex_destroy(&mutex);
+
+	//exit
 	return 0;
 }
 
