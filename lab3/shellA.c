@@ -1,8 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #define MAXLINE 50 /* 50 chars per line, per command, should be enough. */
+#define MAXCMDHISTORY 10
+
+char commandHistory[MAXCMDHISTORY][MAXLINE];
+char terminalHistory[MAXCMDHISTORY][MAXLINE];
+int numberOfCommands = 0;
+
 
 /** The setup() routine reads in the next command line string storing it in the input buffer.
 The line is separated into distinct tokens using whitespace as delimiters.  Setup also 
@@ -32,6 +39,21 @@ void setup(char inputBuff[], char *args[],int *background)
 	exit(-1);           /* Terminate with error code of -1 */
     }
     
+    // Add the Command to history
+    strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
+
+    char* newLine = '\n';
+    char* zeroLine = '\0';
+
+    int a = 0;
+    while (inputBuff[a] != newLine && inputBuff[a] != zeroLine){
+        terminalHistory[numberOfCommands % MAXCMDHISTORY][a] = inputBuff[a];
+        a++;
+
+    }
+
+    ++numberOfCommands;
+
     /* Examine every character in the input buffer */
     for (i = 0; i < length; i++) {
  
@@ -71,12 +93,12 @@ void setup(char inputBuff[], char *args[],int *background)
     }    
     args[j] = NULL; /* Just in case the input line was > 80 */
     
-    /**** Loop to print command line parameters
+    //Loop to print command line parameters
     for (i=0; i<j; ++i) {
 	printf("In setup: args[%i] is %s\n", i, args[i]);
 	printf("In setup: (args+1)[0] is %s\n", (args+1)[0]);
     }
-    ****/
+    
 } 
 
 int main(void)
@@ -85,17 +107,39 @@ int main(void)
     char *args[MAXLINE/2+1];/* Command line arguments */
     int background;         /* Equals 1 if a command is followed by '&', else 0 */
     
+    char commandHistory[MAXCMDHISTORY][MAXLINE];
+    int a = 0;
+    while (a < MAXCMDHISTORY){
+        strcpy(commandHistory[a],"");
+        a++;
+    }
+
 
     while (1){            /* Program terminates normally inside setup */
 	pid_t pid;
 	char **command_args_ptr = &args[1];
 	background = 0;
 
-	printf("CSE2431Sh$");  /* Shell prompt */
+	printf("CSE2431Sh$ ");  /* Shell prompt */
         fflush(0);
 
         setup(inputBuff, args, &background);       /* Get next command */
 
+    if (strncmp(inputBuff, "history", 7) == 0){
+        int top;
+        if (numberOfCommands < MAXCMDHISTORY){
+            top = numberOfCommands;
+        }
+        else{
+            top = MAXCMDHISTORY;
+        }
+
+        int a = 0;
+        while (a < top){
+            printf("%d \t %s\n", a, terminalHistory[a]);
+            a++;
+        }
+    }
 	/* Fill in the code for these steps:  
 	 (1) Fork a child process using fork(),
 	 (2) The child process will invoke execvp(),
