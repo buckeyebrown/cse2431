@@ -49,7 +49,6 @@ void setup(char inputBuff[], char *args[],int *background)
     while (inputBuff[a] != newLine && inputBuff[a] != zeroLine){
         terminalHistory[numberOfCommands % MAXCMDHISTORY][a] = inputBuff[a];
         a++;
-
     }
 
     ++numberOfCommands;
@@ -94,10 +93,10 @@ void setup(char inputBuff[], char *args[],int *background)
     args[j] = NULL; /* Just in case the input line was > 80 */
     
     //Loop to print command line parameters
-    for (i=0; i<j; ++i) {
-	printf("In setup: args[%i] is %s\n", i, args[i]);
-	printf("In setup: (args+1)[0] is %s\n", (args+1)[0]);
-    }
+    //for (i=0; i<j; ++i) {
+	//printf("In setup: args[%i] is %s\n", i, args[i]);
+	//printf("In setup: (args+1)[0] is %s\n", (args+1)[0]);
+    //}
     
 } 
 
@@ -125,7 +124,7 @@ int main(void)
 
         setup(inputBuff, args, &background);       /* Get next command */
 
-    if (strncmp(inputBuff, "history", 7) == 0){
+    if ((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0)){
         int top;
         if (numberOfCommands < MAXCMDHISTORY){
             top = numberOfCommands;
@@ -136,9 +135,14 @@ int main(void)
 
         int a = 0;
         while (a < top){
-            printf("%d \t %s\n", a, terminalHistory[a]);
+            int commandVal = a + 1;
+            printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
             a++;
         }
+    }
+    else if(strncmp(inputBuff, "!", 1) == 0){
+        int commandNum = inputBuff[1] - '0';
+        printf("%i\n", commandNum);
     }
 	/* Fill in the code for these steps:  
 	 (1) Fork a child process using fork(),
