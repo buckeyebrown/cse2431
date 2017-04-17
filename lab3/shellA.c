@@ -39,28 +39,48 @@ void setup(char inputBuff[], char *args[],int *background)
 	exit(-1);           /* Terminate with error code of -1 */
     }
     
-    if(strncmp(inputBuff, "r", 1) == 0){
+    if (strncmp(inputBuff, "rr", 2) == 0){
+            strcpy(inputBuff, commandHistory[numberOfCommands - 1]);
+        if ((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0)){
+            int top;
+            if (numberOfCommands < MAXCMDHISTORY){
+                top = numberOfCommands;
+            }
+            else{
+                top = MAXCMDHISTORY;
+            }
+
+            int a = 0;
+            while (a < top){
+                int commandVal = a + 1;
+                printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+                a++;
+            }
+        }       
+    }
+    else if(strncmp(inputBuff, "r", 1) == 0){
         if(length < 4){ // For r1 through r10
             int commandNum = inputBuff[1] - '0';
             --commandNum;
             strcpy(inputBuff, commandHistory[commandNum]);
         }
-                int top;
-        if (numberOfCommands < MAXCMDHISTORY){
-            top = numberOfCommands;
-        }
-        else{
-            top = MAXCMDHISTORY;
-        }
+        if ((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0)){
+            int top;
+            if (numberOfCommands < MAXCMDHISTORY){
+                top = numberOfCommands;
+            }
+            else{
+                top = MAXCMDHISTORY;
+            }
 
-        int a = 0;
-        while (a < top){
-            int commandVal = a + 1;
-            printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
-            a++;
+            int a = 0;
+            while (a < top){
+                int commandVal = a + 1;
+                printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+                a++;
+            }
         }
     }
-
 
     // Add the Command to history
     strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
