@@ -100,13 +100,13 @@ void setup(char inputBuff[], char *args[],int *background)
     
 } 
 
+
 int main(void)
 {
     char inputBuff[MAXLINE]; /* Input buffer  to hold the command entered */
     char *args[MAXLINE/2+1];/* Command line arguments */
     int background;         /* Equals 1 if a command is followed by '&', else 0 */
     
-    char commandHistory[MAXCMDHISTORY][MAXLINE];
     int a = 0;
     while (a < MAXCMDHISTORY){
         strcpy(commandHistory[a],"");
@@ -144,17 +144,21 @@ int main(void)
         int commandNum = inputBuff[1] - '0';
         printf("%i\n", commandNum);
     }
-	/* Fill in the code for these steps:  
-	 (1) Fork a child process using fork(),
-	 (2) The child process will invoke execvp(),
-	 (3) If bkgnd == 0, the parent will wait; 
-		otherwise returns to the setup() function. */
-	pid = fork();
-	if (pid == 0) {
-		execvp(args[0], args);
-	}
-	else {
-		if (background == 0) wait(pid);
-	}
+    
+            /* Fill in the code for these steps:  
+         (1) Fork a child process using fork(),
+         (2) The child process will invoke execvp(),
+         (3) If bkgnd == 0, the parent will wait; 
+            otherwise returns to the setup() function. */
+        pid = fork();
+            if (pid == 0) {
+                //printf("**\n%s\n", args[0]);
+                //printf("$$\n%s\n", args);
+                execvp(args[0], args);
+            }
+            else {
+                if (background == 0) wait(pid);
+            }        
+
     }
 }
