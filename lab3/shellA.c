@@ -39,6 +39,11 @@ void setup(char inputBuff[], char *args[],int *background)
 	exit(-1);           /* Terminate with error code of -1 */
     }
     
+    if(strncmp(inputBuff, "r", 1) == 0){
+        int commandNum = inputBuff[1] - '0';
+        strcpy(inputBuff, commandHistory[commandNum]);
+    }
+
     // Add the Command to history
     strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
 
@@ -140,10 +145,10 @@ int main(void)
             a++;
         }
     }
-    else if(strncmp(inputBuff, "r", 1) == 0){
-        int commandNum = inputBuff[1] - '0';
-        printf("%i\n", commandNum);
-    }
+    //else if(strncmp(inputBuff, "r", 1) == 0){
+    //    int commandNum = inputBuff[1] - '0';
+    //    printf("%i\n", commandNum);
+    //}
     
             /* Fill in the code for these steps:  
          (1) Fork a child process using fork(),
