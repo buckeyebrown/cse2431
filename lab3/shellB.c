@@ -18,7 +18,6 @@ char commandHistory[MAXCMDHISTORY][MAXLINE];
 char terminalHistory[MAXCMDHISTORY][MAXLINE];
 int numberOfCommands = 0;
 
-
 /** The setup() routine reads in the next command line string storing it in the input buffer.
 The line is separated into distinct tokens using whitespace as delimiters.  Setup also 
 modifies the args parameter so that it holds points to the null-terminated strings  which 
@@ -26,7 +25,7 @@ are the tokens in the most recent user command line as well as a NULL pointer, i
 end of the argument list, which comes after the string pointers that have been assigned to
 args. ***/
 
-void setup(char inputBuff[], char *args[],int *background)
+void setup(char inputBuff[], char *args[],int *background, FILE* fp)
 {
     int length,  /* Num characters in the command line */
         i,       /* Index for inputBuff arrray          */
@@ -92,7 +91,12 @@ void setup(char inputBuff[], char *args[],int *background)
 
     // Add the Command to history
     strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
-
+//    int pos = numberOfCommands % MAXCMDHISTORY;
+//    char num = pos + '0';
+//    printf("%c\n", num);
+//    fwrite(&pos, 1, sizeof(int), fp);
+    //fwrite(num, 1, sizeof(num), fp);
+    fwrite(commandHistory[numberOfCommands % MAXCMDHISTORY], 1, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]), fp);
     char* newLine = '\n';
     char* zeroLine = '\0';
 
@@ -154,6 +158,7 @@ void setup(char inputBuff[], char *args[],int *background)
 
 int main(void)
 {
+
     char inputBuff[MAXLINE]; /* Input buffer  to hold the command entered */
     char *args[MAXLINE/2+1];/* Command line arguments */
     int background;         /* Equals 1 if a command is followed by '&', else 0 */
@@ -165,7 +170,10 @@ int main(void)
     }
 
 
+
     while (1){            /* Program terminates normally inside setup */
+    FILE* fp = fopen("commandhistory.txt", "ab+"); //Open File
+
 	pid_t pid;
 	char **command_args_ptr = &args[1];
 	background = 0;
@@ -173,7 +181,7 @@ int main(void)
 	printf("CSE2431Sh$ ");  /* Shell prompt */
         fflush(0);
 
-        setup(inputBuff, args, &background);       /* Get next command */
+        setup(inputBuff, args, &background, fp);       /* Get next command */
 
     if ((strncmp(inputBuff, "history", 50) == 0) || (strncmp(inputBuff, "h", 50) == 0)){
         int top;
@@ -206,6 +214,6 @@ int main(void)
             else {
                 if (background == 0) wait(pid);
             }        
-
+    fclose(fp); //Close file pointer
     }
 }
