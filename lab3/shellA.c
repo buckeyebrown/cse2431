@@ -40,9 +40,27 @@ void setup(char inputBuff[], char *args[],int *background)
     }
     
     if(strncmp(inputBuff, "r", 1) == 0){
-        int commandNum = inputBuff[1] - '0';
-        strcpy(inputBuff, commandHistory[commandNum]);
+        if(length < 4){ // For r1 through r10
+            int commandNum = inputBuff[1] - '0';
+            --commandNum;
+            strcpy(inputBuff, commandHistory[commandNum]);
+        }
+                int top;
+        if (numberOfCommands < MAXCMDHISTORY){
+            top = numberOfCommands;
+        }
+        else{
+            top = MAXCMDHISTORY;
+        }
+
+        int a = 0;
+        while (a < top){
+            int commandVal = a + 1;
+            printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+            a++;
+        }
     }
+
 
     // Add the Command to history
     strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
@@ -145,10 +163,6 @@ int main(void)
             a++;
         }
     }
-    //else if(strncmp(inputBuff, "r", 1) == 0){
-    //    int commandNum = inputBuff[1] - '0';
-    //    printf("%i\n", commandNum);
-    //}
     
             /* Fill in the code for these steps:  
          (1) Fork a child process using fork(),
