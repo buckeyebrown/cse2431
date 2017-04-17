@@ -124,7 +124,7 @@ int main(void)
 
         setup(inputBuff, args, &background);       /* Get next command */
 
-    if ((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0)){
+    if ((strncmp(inputBuff, "history", 50) == 0) || (strncmp(inputBuff, "h", 50) == 0)){
         int top;
         if (numberOfCommands < MAXCMDHISTORY){
             top = numberOfCommands;
@@ -140,7 +140,7 @@ int main(void)
             a++;
         }
     }
-    else if(strncmp(inputBuff, "!", 1) == 0){
+    else if(strncmp(inputBuff, "r", 1) == 0){
         int commandNum = inputBuff[1] - '0';
         printf("%i\n", commandNum);
     }
