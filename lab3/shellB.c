@@ -156,12 +156,17 @@ void setup(char inputBuff[], char *args[],int *background, FILE* fp)
     
 } 
 
+void exitProgram(FILE *fp)
+{
+    fclose(fp); //Close file pointer
+    exit(0);
+}
 
 int main(void)
 {
     
     char inputBuff[MAXLINE]; /* Input buffer  to hold the command entered */
-    char *args[MAXLINE/2+1];/* Command line arguments */
+    char *args[MAXLINE/2+1]; /* Command line arguments */
     char historyBufferForFile[MAXCMDHISTORY * MAXLINE];
     int background;         /* Equals 1 if a command is followed by '&', else 0 */
 
@@ -209,6 +214,9 @@ int main(void)
             a++;
         }
     }
+    else if (strncmp(inputBuff, "exit", 4) == 0){
+        exitProgram(fp);
+    }
     
             /* Fill in the code for these steps:  
          (1) Fork a child process using fork(),
@@ -225,6 +233,5 @@ int main(void)
                 if (background == 0) wait(pid);
             }        
     }
-    fclose(fp); //Close file pointer
 
 }
