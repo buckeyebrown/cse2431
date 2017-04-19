@@ -66,9 +66,9 @@ void setup(char inputBuff[], char *args[],int *background)
             }
         }       
     }
-    else if(strncmp(inputBuff, "r ", 2) == 0){
+    else if(strncmp(inputBuff, "r", 1) == 0){
         if(length < 4){ // For r0 through r9
-            int commandNum = inputBuff[2] - '0';
+            int commandNum = inputBuff[1] - '0';
             memset(inputBuff, 0, sizeof(inputBuff));
             strcpy(inputBuff, commandHistory[commandNum]);
         }

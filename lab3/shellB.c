@@ -95,7 +95,19 @@ void setup(char inputBuff[], char *args[],int *background, FILE* fp)
         memset((commandHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]));
         strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
 
-        fwrite(commandHistory[numberOfCommands % MAXCMDHISTORY], 1, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]), fp);
+        int position = (numberOfCommands % MAXCMDHISTORY) * MAXLINE;
+        printf("Writing to file at %d\n", position);
+        fseek(fp, position, SEEK_SET);
+        char toWrite[MAXLINE];
+        memset(toWrite, 0, sizeof(toWrite));
+        strcpy(toWrite, commandHistory[numberOfCommands % MAXCMDHISTORY]);
+        fputs(toWrite, fp);
+
+        //test print how long file is
+        fseek (fp, 0, SEEK_END);   // non-portable
+        printf("The file has %d bytes\n", ftell (fp));
+        rewind(fp);
+        //fwrite(commandHistory[numberOfCommands % MAXCMDHISTORY], 1, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]), fp);
         char* newLine = '\n';
         char* zeroLine = '\0';
 
@@ -162,6 +174,20 @@ void exitProgram(FILE *fp)
     exit(0);
 }
 
+void loadHistory(FILE *fp){
+
+}
+
+void saveHistory(FILE *fp){
+    int a = 0;
+    while (a < MAXCMDHISTORY){
+        int writePosition = a % MAXCMDHISTORY;
+    }
+
+    char commandHistory[MAXCMDHISTORY][MAXLINE];
+
+}
+
 int main(void)
 {
     
@@ -187,6 +213,11 @@ int main(void)
                 historyBufferForFile[newLength++] = '\0';
         }
     }
+
+    int endOfFile = fseek(fp, 0, SEEK_END);
+    rewind(fp);
+
+    printf("The EOF is %d\n", endOfFile);
 
     while (1){            /* Program terminates normally inside setup */
 
