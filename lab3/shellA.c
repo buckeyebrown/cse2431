@@ -61,16 +61,14 @@ void setup(char inputBuff[], char *args[],int *background)
 
             int a = 0;
             while (a < top){
-                int commandVal = a + 1;
-                printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+                printf("Command #%d: %s\n", a, terminalHistory[a]);
                 a++;
             }
         }       
     }
-    else if(strncmp(inputBuff, "r", 1) == 0){
-        if(length < 4){ // For r1 through r10
-            int commandNum = inputBuff[1] - '0';
-            --commandNum;
+    else if(strncmp(inputBuff, "r ", 2) == 0){
+        if(length < 4){ // For r0 through r9
+            int commandNum = inputBuff[2] - '0';
             memset(inputBuff, 0, sizeof(inputBuff));
             strcpy(inputBuff, commandHistory[commandNum]);
         }
@@ -85,28 +83,29 @@ void setup(char inputBuff[], char *args[],int *background)
 
             int a = 0;
             while (a < top){
-                int commandVal = a + 1;
-                printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+                printf("Command #%d: %s\n", a, terminalHistory[a]);
                 a++;
             }
         }
     }
+    //if (!((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0))){
 
-    // Add the Command to history
-    memset((commandHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]));
-    strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
+        // Add the Command to history
+        memset((commandHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]));
+        strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
 
-    char* newLine = '\n';
-    char* zeroLine = '\0';
+        char* newLine = '\n';
+        char* zeroLine = '\0';
 
-    int a = 0;
-    memset((terminalHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(terminalHistory[numberOfCommands % MAXCMDHISTORY]));
-    while (inputBuff[a] != newLine && inputBuff[a] != zeroLine){
-        terminalHistory[numberOfCommands % MAXCMDHISTORY][a] = inputBuff[a];
-        a++;
-    }
+        int a = 0;
+        memset((terminalHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(terminalHistory[numberOfCommands % MAXCMDHISTORY]));
+        while (inputBuff[a] != newLine && inputBuff[a] != zeroLine){
+            terminalHistory[numberOfCommands % MAXCMDHISTORY][a] = inputBuff[a];
+            a++;
+        }
 
-    ++numberOfCommands;
+        ++numberOfCommands;
+    //}
 
     /* Examine every character in the input buffer */
     for (i = 0; i < length; i++) {
@@ -179,7 +178,7 @@ int main(void)
 
         setup(inputBuff, args, &background);       /* Get next command */
 
-    if ((strncmp(inputBuff, "history", 50) == 0) || (strncmp(inputBuff, "h", 50) == 0)){
+    if ((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0)){
         int top;
         if (numberOfCommands < MAXCMDHISTORY){
             top = numberOfCommands;
@@ -190,8 +189,7 @@ int main(void)
 
         int a = 0;
         while (a < top){
-            int commandVal = a + 1;
-            printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+            printf("Command #%d: %s\n", a, terminalHistory[a]);
             a++;
         }
     }

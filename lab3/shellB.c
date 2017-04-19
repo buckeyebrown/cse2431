@@ -60,16 +60,14 @@ void setup(char inputBuff[], char *args[],int *background, FILE* fp)
 
             int a = 0;
             while (a < top){
-                int commandVal = a + 1;
-                printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+                printf("Command #%d: %s\n", a, terminalHistory[a]);
                 a++;
             }
         }       
     }
-    else if(strncmp(inputBuff, "r", 1) == 0){
-        if(length < 4){ // For r1 through r10
-            int commandNum = inputBuff[1] - '0';
-            --commandNum;
+    else if(strncmp(inputBuff, "r ", 2) == 0){
+        if(length < 4){ // For r0 through r9
+            int commandNum = inputBuff[2] - '0';
             memset(inputBuff, 0, sizeof(inputBuff));
             strcpy(inputBuff, commandHistory[commandNum]);
         }
@@ -84,30 +82,32 @@ void setup(char inputBuff[], char *args[],int *background, FILE* fp)
 
             int a = 0;
             while (a < top){
-                int commandVal = a + 1;
 
-                printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+                printf("Command #%d: %s\n", a, terminalHistory[a]);
                 a++;
             }
         }
     }
 
-    // Add the Command to history
-    memset((commandHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]));
-    strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
+    //if (!((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0))){
 
-    fwrite(commandHistory[numberOfCommands % MAXCMDHISTORY], 1, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]), fp);
-    char* newLine = '\n';
-    char* zeroLine = '\0';
+        // Add the Command to history
+        memset((commandHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]));
+        strcpy(commandHistory[numberOfCommands % MAXCMDHISTORY], inputBuff);
 
-    int a = 0;
-    memset((terminalHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(terminalHistory[numberOfCommands % MAXCMDHISTORY]));
-    while (inputBuff[a] != newLine && inputBuff[a] != zeroLine){
-        terminalHistory[numberOfCommands % MAXCMDHISTORY][a] = inputBuff[a];
-        a++;
-    }
+        fwrite(commandHistory[numberOfCommands % MAXCMDHISTORY], 1, sizeof(commandHistory[numberOfCommands % MAXCMDHISTORY]), fp);
+        char* newLine = '\n';
+        char* zeroLine = '\0';
 
-    ++numberOfCommands;
+        int a = 0;
+        memset((terminalHistory[numberOfCommands % MAXCMDHISTORY]), 0, sizeof(terminalHistory[numberOfCommands % MAXCMDHISTORY]));
+        while (inputBuff[a] != newLine && inputBuff[a] != zeroLine){
+            terminalHistory[numberOfCommands % MAXCMDHISTORY][a] = inputBuff[a];
+            a++;
+        }
+
+        ++numberOfCommands;
+    //}
 
     /* Examine every character in the input buffer */
     for (i = 0; i < length; i++) {
@@ -159,9 +159,10 @@ void setup(char inputBuff[], char *args[],int *background, FILE* fp)
 
 int main(void)
 {
-
+    
     char inputBuff[MAXLINE]; /* Input buffer  to hold the command entered */
     char *args[MAXLINE/2+1];/* Command line arguments */
+    char historyBufferForFile[MAXCMDHISTORY * MAXLINE];
     int background;         /* Equals 1 if a command is followed by '&', else 0 */
 
     int a = 0;
@@ -171,8 +172,18 @@ int main(void)
         a++;
     }
 
-    while (1){            /* Program terminates normally inside setup */
+    memset(historyBufferForFile, 0, sizeof(historyBufferForFile));
     FILE* fp = fopen("commandhistory.txt", "ab+"); //Open File
+        if (fp != NULL){
+            size_t newLength = fread(historyBufferForFile, sizeof(char), MAXCMDHISTORY * MAXLINE, fp);
+            if ( ferror( fp ) != 0 ) {
+                fputs("Error reading file", stderr);
+            } else {
+                historyBufferForFile[newLength++] = '\0';
+        }
+    }
+
+    while (1){            /* Program terminates normally inside setup */
 
 	pid_t pid;
 	char **command_args_ptr = &args[1];
@@ -183,7 +194,7 @@ int main(void)
 
         setup(inputBuff, args, &background, fp);       /* Get next command */
 
-    if ((strncmp(inputBuff, "history", MAXLINE) == 0) || (strncmp(inputBuff, "h", MAXLINE) == 0)){
+    if ((strncmp(inputBuff, "history", 7) == 0) || (strncmp(inputBuff, "h", 1) == 0)){
         int top;
         if (numberOfCommands < MAXCMDHISTORY){
             top = numberOfCommands;
@@ -194,8 +205,7 @@ int main(void)
 
         int a = 0;
         while (a < top){
-            int commandVal = a + 1;
-            printf("Command #%d: %s\n", commandVal, terminalHistory[a]);
+            printf("Command #%d: %s\n", a, terminalHistory[a]);
             a++;
         }
     }
@@ -214,6 +224,7 @@ int main(void)
             else {
                 if (background == 0) wait(pid);
             }        
-    fclose(fp); //Close file pointer
     }
+    fclose(fp); //Close file pointer
+
 }
