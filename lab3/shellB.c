@@ -130,9 +130,11 @@ void setup(char inputBuff[], char *args[],int *background, FILE* fp)
         }
     }
 
-    // Add the Command to history
-    int pos = numberOfCommands % MAXCMDHISTORY;
-    addToHistory(pos, inputBuff);
+    //if (!(strcmp(inputBuff, "history") == 0) || (strcmp(inputBuff, "h") == 0)){
+        // Add the Command to history
+        int pos = numberOfCommands % MAXCMDHISTORY;
+        addToHistory(pos, inputBuff);
+    //}
 
     /* Examine every character in the input buffer */
     for (i = 0; i < length; i++) {
